@@ -2454,6 +2454,7 @@ fn test_emscripten(target: &str) {
 
     let mut cfg = ctest_cfg();
     cfg.define("_GNU_SOURCE", None); // FIXME: ??
+    cfg.flag("-g3");
 
     headers! { cfg:
                "aio.h",
