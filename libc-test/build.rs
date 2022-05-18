@@ -2457,6 +2457,7 @@ fn test_emscripten(target: &str) {
 
     let mut cfg = ctest_cfg();
     cfg.define("_GNU_SOURCE", None); // FIXME: ??
+    cfg.flag("-g3");
 
     headers! { cfg:
                "aio.h",
@@ -2514,7 +2515,6 @@ fn test_emscripten(target: &str) {
                "sys/reboot.h",
                "sys/resource.h",
                "sys/sem.h",
-               "sys/sendfile.h",
                "sys/shm.h",
                "sys/signalfd.h",
                "sys/socket.h",
