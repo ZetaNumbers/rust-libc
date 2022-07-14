@@ -104,3 +104,11 @@ pub type SceUID = i32;
 pub type SceName = *mut c_char;
 
 pub const SCE_UID_NAMELEN: usize = 31;
+
+extern "C" {
+    pub fn calloc(nobj: size_t, size: size_t) -> *mut c_void;
+    pub fn malloc(size: size_t) -> *mut c_void;
+    pub fn realloc(p: *mut c_void, size: size_t) -> *mut c_void;
+    pub fn free(p: *mut c_void);
+    pub fn memalign(align: size_t, size: size_t) -> *mut c_void;
+}
