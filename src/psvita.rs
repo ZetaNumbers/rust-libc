@@ -105,10 +105,20 @@ pub type SceName = *mut c_char;
 
 pub const SCE_UID_NAMELEN: usize = 31;
 
+pub const EXIT_SUCCESS: c_int = 0;
+pub const EXIT_FAILURE: c_int = 1;
+
 extern "C" {
     pub fn calloc(nobj: size_t, size: size_t) -> *mut c_void;
     pub fn malloc(size: size_t) -> *mut c_void;
     pub fn realloc(p: *mut c_void, size: size_t) -> *mut c_void;
     pub fn free(p: *mut c_void);
     pub fn memalign(align: size_t, size: size_t) -> *mut c_void;
+
+    pub fn abort() -> !;
+    pub fn exit(code: c_int) -> !;
+    pub fn quick_exit(code: c_int) -> !;
+    pub fn _Exit(code: c_int) -> !;
+    pub fn atexit(cb: extern "C" fn()) -> c_int;
+    pub fn at_quick_exit(cb: extern "C" fn()) -> c_int;
 }
