@@ -44,6 +44,19 @@ cfg_if! {
     }
 }
 
+s_no_extra_traits! {
+    #[allow(missing_debug_implementations)]
+    pub union max_align_t {
+        float: f64,
+        int: i64,
+    }
+}
+
+pub type errno_t = c_int;
+
+pub const EXIT_SUCCESS: c_int = 0;
+pub const EXIT_FAILURE: c_int = 1;
+
 pub type SceChar8 = i8;
 pub type SceUChar8 = u8;
 
@@ -109,18 +122,7 @@ pub type SceKernelTime = SceUInt32;
 
 pub const SCE_UID_NAMELEN: usize = 31;
 
-s_no_extra_traits! {
-    #[allow(missing_debug_implementations)]
-    pub union max_align_t {
-        float: f64,
-        int: i64,
-    }
-}
 
-pub type errno_t = c_int;
-
-pub const EXIT_SUCCESS: c_int = 0;
-pub const EXIT_FAILURE: c_int = 1;
 
 pub type SceKernelMemBlockType = u32;
 pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_CDRAM_L1WBWA_RW: SceKernelMemBlockType = 0x09404060;
