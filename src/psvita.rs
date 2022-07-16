@@ -118,6 +118,27 @@ pub type errno_t = c_int;
 pub const EXIT_SUCCESS: c_int = 0;
 pub const EXIT_FAILURE: c_int = 1;
 
+pub type SceKernelMemBlockType = u32;
+
+pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_CDRAM_L1WBWA_RW: SceKernelMemBlockType = 0x09404060;
+pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_CDRAM_R: SceKernelMemBlockType = 0x09408040;
+pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_CDRAM_RW: SceKernelMemBlockType = 0x09408060;
+pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_MAIN_DEVICE_RW: SceKernelMemBlockType = 0x0C200860;
+pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_MAIN_R: SceKernelMemBlockType = 0x0C20D040;
+pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_MAIN_RW: SceKernelMemBlockType = 0x0C20D060;
+pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_MAIN_NC_RW: SceKernelMemBlockType = 0x0C208060;
+pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_MAIN_GAME_RW: SceKernelMemBlockType = 0x0C50D060;
+pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_MAIN_PHYCONT_RW: SceKernelMemBlockType = 0x0C80D060;
+pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_MAIN_PHYCONT_NC_RW: SceKernelMemBlockType = 0x0D808060;
+pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_MAIN_CDIALOG_RW: SceKernelMemBlockType = 0x0CA0D060;
+pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_MAIN_CDIALOG_NC_RW: SceKernelMemBlockType = 0x0CA08060;
+pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_MAIN_TOOL_RW: SceKernelMemBlockType = 0x0CF0D060;
+pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_MAIN_TOOL_NC_RW: SceKernelMemBlockType = 0x0CF08060;
+pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_CDIALOG_R: SceKernelMemBlockType = 0x0E20D040;
+pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_CDIALOG_RW: SceKernelMemBlockType = 0x0E20D060;
+pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_CDIALOG_NC_R: SceKernelMemBlockType = 0x0E208040;
+pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_CDIALOG_NC_RW: SceKernelMemBlockType = 0x0E208060;
+
 s! {
     pub struct FILE {
         data: [u64; 32],
@@ -125,6 +146,33 @@ s! {
 
     pub struct fpos_t {
         data: [u64; 2],
+    }
+
+    pub struct SceKernelAllocMemBlockOpt {
+        pub size: SceSize,
+        pub attr: SceUInt32,
+        pub alignment: SceSize,
+        pub uidBaseBlock: SceUID,
+        pub strBaseBlockName: *const c_char,
+        /// Unknown flags 0x10 or 0x30 for ::sceKernelOpenMemBlock
+        pub flags: c_int,
+        pub reserved: [c_int; 10],
+    }
+
+    pub struct SceKernelMemBlockInfo {
+        pub size: SceSize,
+        pub mappedBase: *mut ::c_void,
+        pub mappedSize: SceSize,
+        pub memoryType: ::c_int,
+        pub access: SceUInt32,
+        pub type_: SceKernelMemBlockType,
+    }
+
+    pub struct SceKernelFreeMemorySizeInfo {
+        pub size: c_int,
+        pub size_user: c_int,
+        pub size_cdram: c_int,
+        pub size_phycont: c_int,
     }
 }
 
@@ -200,4 +248,33 @@ extern "C" {
     pub fn thrd_yield();
 
     pub fn sceKernelGetRandomNumber(output: *mut c_void, size: SceSize) -> c_int;
+    /// - `opt` can be null
+    pub fn sceKernelAllocMemBlock(
+        name: *const c_char,
+        ty: SceKernelMemBlockType,
+        size: SceSize,
+        opt: *const SceKernelAllocMemBlockOpt,
+    ) -> SceUID;
+    pub fn sceKernelFreeMemBlock(uid: SceUID) -> c_int;
+    pub fn sceKernelGetMemBlockBase(uid: SceUID, base: *mut *mut c_void) -> c_int;
+    pub fn sceKernelFindMemBlockByAddr(addr: *const c_void, size: SceSize) -> SceUID;
+    pub fn sceKernelGetMemBlockInfoByAddr(
+        base: *mut c_void,
+        info: *mut SceKernelMemBlockInfo,
+    ) -> c_int;
+    pub fn sceKernelGetMemBlockInfoByRange(
+        base: *mut c_void,
+        size: SceSize,
+        info: *mut SceKernelMemBlockInfo,
+    ) -> c_int;
+    pub fn sceKernelAllocMemBlockForVM(name: *const char, size: SceSize) -> SceUID;
+    pub fn sceKernelSyncVMDomain(uid: SceUID, data: *mut c_void, size: SceSize) -> c_int;
+    pub fn sceKernelOpenVMDomain() -> c_int;
+    pub fn sceKernelCloseVMDomain() -> c_int;
+    pub fn sceKernelOpenMemBlock(name: *const char, flags: c_int) -> c_int;
+    pub fn sceKernelCloseMemBlock(uid: SceUID) -> c_int;
+    pub fn sceKernelGetModelForCDialog() -> c_int;
+    pub fn sceKernelGetModel() -> c_int;
+    pub fn sceKernelGetFreeMemorySize(info: *mut SceKernelFreeMemorySizeInfo) -> c_int;
+    pub fn sceKernelIsPSVitaTV() -> SceBool;
 }
