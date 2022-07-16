@@ -243,9 +243,9 @@ s! {
 
     pub struct SceKernelMemBlockInfo {
         pub size: SceSize,
-        pub mappedBase: *mut ::c_void,
+        pub mappedBase: *mut c_void,
         pub mappedSize: SceSize,
-        pub memoryType: ::c_int,
+        pub memoryType: c_int,
         pub access: SceUInt32,
         pub type_: SceKernelMemBlockType,
     }
@@ -465,8 +465,8 @@ extern "C" {
     pub fn ferror(stream: *mut FILE) -> c_int;
     pub fn clearerr(stream: *mut FILE);
     pub fn perror(s: *const c_char);
-    pub fn printf(format: *const c_char, ...) -> ::c_int;
-    pub fn fprintf(stream: *mut FILE, format: *const c_char, ...) -> ::c_int;
+    pub fn printf(format: *const c_char, ...) -> c_int;
+    pub fn fprintf(stream: *mut FILE, format: *const c_char, ...) -> c_int;
     pub fn fopen_s(
         steamptr: *mut *mut FILE,
         filename: *const c_char,
