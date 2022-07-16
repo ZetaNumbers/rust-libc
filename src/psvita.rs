@@ -113,6 +113,8 @@ s_no_extra_traits! {
     }
 }
 
+pub type errno_t = c_int;
+
 pub const EXIT_SUCCESS: c_int = 0;
 pub const EXIT_FAILURE: c_int = 1;
 
@@ -129,4 +131,6 @@ extern "C" {
     pub fn _Exit(code: c_int) -> !;
     pub fn atexit(cb: extern "C" fn()) -> c_int;
     pub fn at_quick_exit(cb: extern "C" fn()) -> c_int;
+
+    pub fn _sceLibcErrnoLoc() -> *mut errno_t;
 }
