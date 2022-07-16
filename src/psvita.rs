@@ -103,6 +103,10 @@ pub type SceUID = i32;
 
 pub type SceName = *mut c_char;
 
+pub type SceKernelSysClock = SceUInt64;
+pub type SceKernelClock = SceUInt64;
+pub type SceKernelTime = SceUInt32;
+
 pub const SCE_UID_NAMELEN: usize = 31;
 
 s_no_extra_traits! {
@@ -119,7 +123,6 @@ pub const EXIT_SUCCESS: c_int = 0;
 pub const EXIT_FAILURE: c_int = 1;
 
 pub type SceKernelMemBlockType = u32;
-
 pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_CDRAM_L1WBWA_RW: SceKernelMemBlockType = 0x09404060;
 pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_CDRAM_R: SceKernelMemBlockType = 0x09408040;
 pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_CDRAM_RW: SceKernelMemBlockType = 0x09408060;
@@ -138,6 +141,22 @@ pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_CDIALOG_R: SceKernelMemBlockType = 0x0E2
 pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_CDIALOG_RW: SceKernelMemBlockType = 0x0E20D060;
 pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_CDIALOG_NC_R: SceKernelMemBlockType = 0x0E208040;
 pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_CDIALOG_NC_RW: SceKernelMemBlockType = 0x0E208060;
+
+pub type SceKernelProcessPrioritySystem = c_uint;
+pub const SCE_KERNEL_PROCESS_PRIORITY_SYSTEM_HIGH: SceKernelProcessPrioritySystem = 32;
+pub const SCE_KERNEL_PROCESS_PRIORITY_SYSTEM_DEFAULT: SceKernelProcessPrioritySystem = 96;
+pub const SCE_KERNEL_PROCESS_PRIORITY_SYSTEM_LOW: SceKernelProcessPrioritySystem = 159;
+
+pub type SceKernelProcessPriorityUser = c_uint;
+pub const SCE_KERNEL_PROCESS_PRIORITY_USER_HIGH: SceKernelProcessPriorityUser = 64;
+pub const SCE_KERNEL_PROCESS_PRIORITY_USER_DEFAULT: SceKernelProcessPriorityUser = 96;
+pub const SCE_KERNEL_PROCESS_PRIORITY_USER_LOW: SceKernelProcessPriorityUser = 127;
+
+pub type SceKernelPowerTickType = c_uint;
+pub const SCE_KERNEL_POWER_TICK_DEFAULT: SceKernelPowerTickType = 0;
+pub const SCE_KERNEL_POWER_TICK_DISABLE_AUTO_SUSPEND: SceKernelPowerTickType = 1;
+pub const SCE_KERNEL_POWER_TICK_DISABLE_OLED_OFF: SceKernelPowerTickType = 4;
+pub const SCE_KERNEL_POWER_TICK_DISABLE_OLED_DIMMING: SceKernelPowerTickType = 6;
 
 s! {
     pub struct FILE {
@@ -173,6 +192,15 @@ s! {
         pub size_user: c_int,
         pub size_cdram: c_int,
         pub size_phycont: c_int,
+    }
+
+    pub struct SceKernelTimeval {
+        pub sec: i32,
+        pub nsec: i32,
+    }
+
+    pub struct SceKernelTimezone {
+        inner: u64,
     }
 }
 
@@ -277,4 +305,27 @@ extern "C" {
     pub fn sceKernelGetModel() -> c_int;
     pub fn sceKernelGetFreeMemorySize(info: *mut SceKernelFreeMemorySizeInfo) -> c_int;
     pub fn sceKernelIsPSVitaTV() -> SceBool;
+
+    pub fn sceKernelExitProcess(res: c_int) -> c_int;
+    pub fn sceKernelPowerTick(type_: SceKernelPowerTickType) -> c_int;
+    pub fn sceKernelPowerLock(type_: SceKernelPowerTickType) -> c_int;
+    pub fn sceKernelPowerUnlock(type_: SceKernelPowerTickType) -> c_int;
+    pub fn sceKernelGetProcessTime(pSysClock: *mut SceKernelSysClock) -> c_int;
+    pub fn sceKernelGetProcessTimeLow() -> SceUInt32;
+    pub fn sceKernelGetProcessTimeWide() -> SceUInt64;
+    pub fn sceKernelGetCurrentProcess() -> SceUID;
+    pub fn sceKernelGetRemoteProcessTime(
+        processId: SceUID,
+        pClock: *mut SceKernelSysClock,
+    ) -> SceInt32;
+    pub fn sceKernelGetStderr() -> SceUID;
+    pub fn sceKernelGetStdin() -> SceUID;
+    pub fn sceKernelGetStdout() -> SceUID;
+    pub fn sceKernelGetProcessParam() -> *const c_void;
+    pub fn sceKernelLibcClock() -> SceKernelClock;
+    pub fn sceKernelLibcTime(tloc: *mut SceKernelTime) -> SceKernelTime;
+    pub fn sceKernelLibcGettimeofday(
+        tv: *mut SceKernelTimeval,
+        tz: *mut SceKernelTimezone,
+    ) -> c_int;
 }
