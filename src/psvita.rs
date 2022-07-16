@@ -118,6 +118,16 @@ pub type errno_t = c_int;
 pub const EXIT_SUCCESS: c_int = 0;
 pub const EXIT_FAILURE: c_int = 1;
 
+s! {
+    pub struct FILE {
+        data: [u64; 32],
+    }
+
+    pub struct fpos_t {
+        data: [u64; 2],
+    }
+}
+
 extern "C" {
     pub fn calloc(nobj: size_t, size: size_t) -> *mut c_void;
     pub fn malloc(size: size_t) -> *mut c_void;
@@ -131,6 +141,58 @@ extern "C" {
     pub fn _Exit(code: c_int) -> !;
     pub fn atexit(cb: extern "C" fn()) -> c_int;
     pub fn at_quick_exit(cb: extern "C" fn()) -> c_int;
+
+    #[link_name = "_Stderr"]
+    pub static stderr: FILE;
+    #[link_name = "_Stdin"]
+    pub static stdin: FILE;
+    #[link_name = "_Stdout"]
+    pub static stdout: FILE;
+    pub fn fopen(filename: *const c_char, mode: *const c_char) -> *mut FILE;
+    pub fn freopen(filename: *const c_char, mode: *const c_char, file: *mut FILE) -> *mut FILE;
+    pub fn fflush(file: *mut FILE) -> c_int;
+    pub fn fclose(file: *mut FILE) -> c_int;
+    pub fn remove(filename: *const c_char) -> c_int;
+    pub fn rename(oldname: *const c_char, newname: *const c_char) -> c_int;
+    pub fn setvbuf(stream: *mut FILE, buffer: *mut c_char, mode: c_int, size: size_t) -> c_int;
+    pub fn setbuf(stream: *mut FILE, buf: *mut c_char);
+    pub fn getchar() -> c_int;
+    pub fn putchar(c: c_int) -> c_int;
+    pub fn fgetc(stream: *mut FILE) -> c_int;
+    pub fn fgets(buf: *mut c_char, n: c_int, stream: *mut FILE) -> *mut c_char;
+    pub fn fputc(c: c_int, stream: *mut FILE) -> c_int;
+    pub fn fputs(s: *const c_char, stream: *mut FILE) -> c_int;
+    pub fn puts(s: *const c_char) -> c_int;
+    pub fn ungetc(c: c_int, stream: *mut FILE) -> c_int;
+    pub fn fread(ptr: *mut c_void, size: size_t, nobj: size_t, stream: *mut FILE) -> size_t;
+    pub fn fwrite(ptr: *const c_void, size: size_t, nobj: size_t, stream: *mut FILE) -> size_t;
+    pub fn fseek(stream: *mut FILE, offset: c_long, whence: c_int) -> c_int;
+    pub fn ftell(stream: *mut FILE) -> c_long;
+    pub fn rewind(stream: *mut FILE);
+    pub fn fgetpos(stream: *mut FILE, ptr: *mut fpos_t) -> c_int;
+    pub fn fsetpos(stream: *mut FILE, ptr: *const fpos_t) -> c_int;
+    pub fn feof(stream: *mut FILE) -> c_int;
+    pub fn ferror(stream: *mut FILE) -> c_int;
+    pub fn clearerr(stream: *mut FILE);
+    pub fn perror(s: *const c_char);
+    pub fn printf(format: *const c_char, ...) -> ::c_int;
+    pub fn fprintf(stream: *mut FILE, format: *const c_char, ...) -> ::c_int;
+    pub fn fopen_s(
+        steamptr: *mut *mut FILE,
+        filename: *const c_char,
+        mode: *const c_char,
+    ) -> errno_t;
+    pub fn freopen_s(
+        newsteamptr: *mut *mut FILE,
+        filename: *const c_char,
+        mode: *const c_char,
+        stream: *mut FILE,
+    ) -> errno_t;
+    pub fn snprintf(s: *mut c_char, n: size_t, format: *const c_char, ...) -> c_int;
+    pub fn sprintf(s: *mut c_char, format: *const c_char, ...) -> c_int;
+    pub fn fscanf(stream: *mut FILE, format: *const c_char, ...) -> c_int;
+    pub fn scanf(format: *const c_char, ...) -> c_int;
+    pub fn sscanf(s: *const c_char, format: *const c_char, ...) -> c_int;
 
     pub fn _sceLibcErrnoLoc() -> *mut errno_t;
 }
