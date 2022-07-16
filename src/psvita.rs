@@ -195,4 +195,7 @@ extern "C" {
     pub fn sscanf(s: *const c_char, format: *const c_char, ...) -> c_int;
 
     pub fn _sceLibcErrnoLoc() -> *mut errno_t;
+
+    #[link_name = "_Thrd_yield"]
+    pub fn thrd_yield();
 }
