@@ -221,6 +221,26 @@ pub const SCE_KERNEL_TMID_DelayThread: SceKernelIdListType = 65;
 pub const SCE_KERNEL_TMID_SuspendThread: SceKernelIdListType = 66;
 pub const SCE_KERNEL_TMID_DormantThread: SceKernelIdListType = 67;
 
+pub type SceDisplayErrorCode = c_int;
+pub const SCE_DISPLAY_ERROR_OK: SceDisplayErrorCode = 0;
+pub const SCE_DISPLAY_ERROR_INVALID_HEAD: SceDisplayErrorCode = 2150170624;
+pub const SCE_DISPLAY_ERROR_INVALID_VALUE: SceDisplayErrorCode = 2150170625;
+pub const SCE_DISPLAY_ERROR_INVALID_ADDR: SceDisplayErrorCode = 2150170626;
+pub const SCE_DISPLAY_ERROR_INVALID_PIXELFORMAT: SceDisplayErrorCode = 2150170627;
+pub const SCE_DISPLAY_ERROR_INVALID_PITCH: SceDisplayErrorCode = 2150170628;
+pub const SCE_DISPLAY_ERROR_INVALID_RESOLUTION: SceDisplayErrorCode = 2150170629;
+pub const SCE_DISPLAY_ERROR_INVALID_UPDATETIMING: SceDisplayErrorCode = 2150170630;
+pub const SCE_DISPLAY_ERROR_NO_FRAME_BUFFER: SceDisplayErrorCode = 2150170631;
+pub const SCE_DISPLAY_ERROR_NO_PIXEL_DATA: SceDisplayErrorCode = 2150170632;
+pub const SCE_DISPLAY_ERROR_NO_OUTPUT_SIGNAL: SceDisplayErrorCode = 2150170633;
+
+pub type SceDisplayPixelFormat = c_uint;
+pub const SCE_DISPLAY_PIXELFORMAT_A8B8G8R8: SceDisplayPixelFormat = 0;
+
+pub type SceDisplaySetBufSync = c_uint;
+pub const SCE_DISPLAY_SETBUF_IMMEDIATE: SceDisplaySetBufSync = 0;
+pub const SCE_DISPLAY_SETBUF_NEXTFRAME: SceDisplaySetBufSync = 1;
+
 pub type SceKernelErrorCode = c_int;
 pub const SCE_KERNEL_OK: SceKernelErrorCode = 0;
 pub const SCE_KERNEL_ERROR_ERROR: SceKernelErrorCode = 2147614721;
@@ -735,6 +755,15 @@ s! {
     pub struct SceKernelLwCondOptParam {
         pub size: SceSize,
     }
+
+    pub struct SceDisplayFrameBuf {
+        pub size: SceSize,
+        pub base: *mut c_void,
+        pub pitch: c_uint,
+        pub pixelformat: SceDisplayPixelFormat,
+        pub width: c_uint,
+        pub height: c_uint,
+    }
 }
 
 extern "C" {
@@ -1079,4 +1108,28 @@ extern "C" {
     pub fn sceKernelGetSystemTimeWide() -> SceInt64;
     pub fn sceKernelGetThreadTLSAddr(thid: SceUID, key: c_int) -> *mut c_void;
     pub fn sceKernelGetTLSAddr(key: c_int) -> *mut c_void;
+
+    pub fn sceDisplaySetFrameBuf(
+        pParam: *const SceDisplayFrameBuf,
+        sync: SceDisplaySetBufSync,
+    ) -> c_int;
+    pub fn sceDisplayGetFrameBuf(
+        pParam: *mut SceDisplayFrameBuf,
+        sync: SceDisplaySetBufSync,
+    ) -> c_int;
+    pub fn sceDisplayGetPrimaryHead() -> c_int;
+    pub fn sceDisplayGetRefreshRate(pFps: *mut f32) -> c_int;
+    pub fn sceDisplayGetMaximumFrameBufResolution(width: *mut c_int, height: *mut c_int) -> c_int;
+    pub fn sceDisplayGetVcount() -> c_int;
+    pub fn sceDisplayGetVcountInternal(display: c_int) -> c_int;
+    pub fn sceDisplayWaitVblankStart() -> c_int;
+    pub fn sceDisplayWaitVblankStartCB() -> c_int;
+    pub fn sceDisplayWaitVblankStartMulti(vcount: c_uint) -> c_int;
+    pub fn sceDisplayWaitVblankStartMultiCB(vcount: c_uint) -> c_int;
+    pub fn sceDisplayWaitSetFrameBuf() -> c_int;
+    pub fn sceDisplayWaitSetFrameBufCB() -> c_int;
+    pub fn sceDisplayWaitSetFrameBufMulti(vcount: c_uint) -> c_int;
+    pub fn sceDisplayWaitSetFrameBufMultiCB(vcount: c_uint) -> c_int;
+    pub fn sceDisplayRegisterVblankStartCallback(uid: SceUID) -> c_int;
+    pub fn sceDisplayUnregisterVblankStartCallback(uid: SceUID) -> c_int;
 }
