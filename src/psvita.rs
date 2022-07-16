@@ -198,4 +198,6 @@ extern "C" {
 
     #[link_name = "_Thrd_yield"]
     pub fn thrd_yield();
+
+    pub fn sceKernelGetRandomNumber(output: *mut c_void, size: SceSize) -> c_int;
 }
