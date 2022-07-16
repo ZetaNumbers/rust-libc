@@ -122,7 +122,15 @@ pub type SceKernelTime = SceUInt32;
 
 pub const SCE_UID_NAMELEN: usize = 31;
 
+pub const SCE_KERNEL_THREAD_CPU_AFFINITY_MASK_DEFAULT: u32 = 0;
 
+pub type SceKernelThreadEntry = extern "C" fn(args: SceSize, argp: *mut c_void) -> c_int;
+pub type SceKernelCallbackFunction = extern "C" fn(
+    notifyId: c_int,
+    notifyCount: c_int,
+    notifyArg: c_int,
+    userData: *mut c_void,
+) -> c_int;
 
 pub type SceKernelMemBlockType = u32;
 pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_CDRAM_L1WBWA_RW: SceKernelMemBlockType = 0x09404060;
@@ -159,6 +167,59 @@ pub const SCE_KERNEL_POWER_TICK_DEFAULT: SceKernelPowerTickType = 0;
 pub const SCE_KERNEL_POWER_TICK_DISABLE_AUTO_SUSPEND: SceKernelPowerTickType = 1;
 pub const SCE_KERNEL_POWER_TICK_DISABLE_OLED_OFF: SceKernelPowerTickType = 4;
 pub const SCE_KERNEL_POWER_TICK_DISABLE_OLED_DIMMING: SceKernelPowerTickType = 6;
+
+pub type SceThreadStatus = c_uint;
+pub const SCE_THREAD_RUNNING: SceThreadStatus = 1;
+pub const SCE_THREAD_READY: SceThreadStatus = 2;
+pub const SCE_THREAD_STANDBY: SceThreadStatus = 4;
+pub const SCE_THREAD_WAITING: SceThreadStatus = 8;
+pub const SCE_THREAD_SUSPEND: SceThreadStatus = 8;
+pub const SCE_THREAD_DORMANT: SceThreadStatus = 16;
+pub const SCE_THREAD_STOPPED: SceThreadStatus = 16;
+pub const SCE_THREAD_DELETED: SceThreadStatus = 32;
+pub const SCE_THREAD_KILLED: SceThreadStatus = 32;
+pub const SCE_THREAD_DEAD: SceThreadStatus = 64;
+pub const SCE_THREAD_STAGNANT: SceThreadStatus = 128;
+pub const SCE_THREAD_SUSPENDED: SceThreadStatus = 256;
+
+pub type SceKernelWaitableAttribute = c_uint;
+pub const SCE_KERNEL_ATTR_THREAD_FIFO: SceKernelWaitableAttribute = 0;
+pub const SCE_KERNEL_ATTR_THREAD_PRIO: SceKernelWaitableAttribute = 8192;
+pub const SCE_KERNEL_ATTR_OPENABLE: SceKernelWaitableAttribute = 128;
+
+pub type SceEventFlagAttributes = c_uint;
+pub const SCE_EVENT_THREAD_FIFO: SceEventFlagAttributes = 0;
+pub const SCE_EVENT_THREAD_PRIO: SceEventFlagAttributes = 8192;
+pub const SCE_EVENT_WAITSINGLE: SceEventFlagAttributes = 0;
+pub const SCE_EVENT_WAITMULTIPLE: SceEventFlagAttributes = 4096;
+pub const SCE_EVENT_OPENABLE: SceEventFlagAttributes = 128;
+
+pub type SceKernelMutexAttribute = c_uint;
+pub const SCE_KERNEL_MUTEX_ATTR_RECURSIVE: SceKernelMutexAttribute = 2;
+pub const SCE_KERNEL_MUTEX_ATTR_CEILING: SceKernelMutexAttribute = 4;
+
+pub type SceEventFlagWaitTypes = c_uint;
+pub const SCE_EVENT_WAITAND: SceEventFlagWaitTypes = 0;
+pub const SCE_EVENT_WAITOR: SceEventFlagWaitTypes = 1;
+pub const SCE_EVENT_WAITCLEAR: SceEventFlagWaitTypes = 2;
+pub const SCE_EVENT_WAITCLEAR_PAT: SceEventFlagWaitTypes = 4;
+
+pub type SceKernelIdListType = c_uint;
+pub const SCE_KERNEL_TMID_Thread: SceKernelIdListType = 1;
+pub const SCE_KERNEL_TMID_Semaphore: SceKernelIdListType = 2;
+pub const SCE_KERNEL_TMID_EventFlag: SceKernelIdListType = 3;
+pub const SCE_KERNEL_TMID_Mbox: SceKernelIdListType = 4;
+pub const SCE_KERNEL_TMID_Vpl: SceKernelIdListType = 5;
+pub const SCE_KERNEL_TMID_Fpl: SceKernelIdListType = 6;
+pub const SCE_KERNEL_TMID_Mpipe: SceKernelIdListType = 7;
+pub const SCE_KERNEL_TMID_Callback: SceKernelIdListType = 8;
+pub const SCE_KERNEL_TMID_ThreadEventHandler: SceKernelIdListType = 9;
+pub const SCE_KERNEL_TMID_Alarm: SceKernelIdListType = 10;
+pub const SCE_KERNEL_TMID_VTimer: SceKernelIdListType = 11;
+pub const SCE_KERNEL_TMID_SleepThread: SceKernelIdListType = 64;
+pub const SCE_KERNEL_TMID_DelayThread: SceKernelIdListType = 65;
+pub const SCE_KERNEL_TMID_SuspendThread: SceKernelIdListType = 66;
+pub const SCE_KERNEL_TMID_DormantThread: SceKernelIdListType = 67;
 
 s! {
     pub struct FILE {
@@ -203,6 +264,157 @@ s! {
 
     pub struct SceKernelTimezone {
         inner: u64,
+    }
+
+    pub struct SceKernelThreadOptParam {
+        pub size: SceSize,
+        pub attr: SceUInt32,
+    }
+
+    pub struct SceKernelThreadInfo {
+        pub size: SceSize,
+        pub processId: SceUID,
+        pub name: [c_char; 32],
+        pub attr: SceUInt32,
+        pub status: SceUInt32,
+        pub entry: SceKernelThreadEntry,
+        pub stack: *mut c_void,
+        pub stackSize: SceInt32,
+        pub initPriority: SceInt32,
+        pub currentPriority: SceInt32,
+        pub initCpuAffinityMask: SceInt32,
+        pub currentCpuAffinityMask: SceInt32,
+        pub currentCpuId: SceInt32,
+        pub lastExecutedCpuId: SceInt32,
+        pub waitType: SceUInt32,
+        pub waitId: SceUID,
+        pub exitStatus: SceInt32,
+        pub runClocks: SceKernelSysClock,
+        pub intrPreemptCount: SceUInt32,
+        pub threadPreemptCount: SceUInt32,
+        pub threadReleaseCount: SceUInt32,
+        pub changeCpuCount: SceInt32,
+        pub fNotifyCallback: SceInt32,
+        pub reserved: SceInt32,
+    }
+
+    pub struct SceKernelThreadRunStatus {
+        pub size: SceSize,
+        pub cpuInfo: [SceKernelThreadRunStatusCpuInfo; 4],
+    }
+
+    pub struct SceKernelThreadRunStatusCpuInfo {
+        pub processId: SceUID,
+        pub threadId: SceUID,
+        pub priority: c_int,
+    }
+
+    pub struct SceKernelSemaOptParam {
+        pub size: SceSize,
+    }
+
+    pub struct SceKernelSemaInfo {
+        pub size: SceSize,
+        pub semaId: SceUID,
+        pub name: [c_char; 32],
+        pub attr: SceUInt,
+        pub initCount: c_int,
+        pub currentCount: c_int,
+        pub maxCount: c_int,
+        pub numWaitThreads: c_int,
+    }
+
+    pub struct SceKernelMutexOptParam {
+        pub size: SceSize,
+        pub ceilingPriority: c_int,
+    }
+
+    pub struct SceKernelMutexInfo {
+        pub size: SceSize,
+        pub mutexId: SceUID,
+        pub name: [c_char; 32],
+        pub attr: SceUInt,
+        pub initCount: c_int,
+        pub currentCount: c_int,
+        pub currentOwnerId: SceUID,
+        pub numWaitThreads: c_int,
+    }
+
+    pub struct SceKernelEventFlagInfo {
+        pub size: SceSize,
+        pub evfId: SceUID,
+        pub name: [c_char; 32],
+        pub attr: SceUInt,
+        pub initPattern: SceUInt,
+        pub currentPattern: SceUInt,
+        pub numWaitThreads: c_int,
+    }
+
+    pub struct SceKernelEventFlagOptParam {
+        pub size: SceSize,
+    }
+
+    pub struct SceKernelCondOptParam {
+        pub size: SceSize,
+    }
+
+    pub struct SceKernelCondInfo {
+        pub size: SceSize,
+        pub condId: SceUID,
+        pub name: [c_char; 32],
+        pub attr: SceUInt,
+        pub mutexId: SceUID,
+        pub numWaitThreads: c_int,
+    }
+
+    pub struct SceKernelCallbackInfo {
+        pub size: SceSize,
+        pub callbackId: SceUID,
+        pub name: [c_char; 32],
+        pub threadId: SceUID,
+        pub callback: SceKernelCallbackFunction,
+        pub common: *mut c_void,
+        pub notifyCount: c_int,
+        pub notifyArg: c_int,
+    }
+
+    pub struct SceKernelMppInfo {
+        pub size: SceSize,
+        pub mppId: SceUID,
+        pub name: [c_char; 32],
+        pub attr: SceUInt,
+        pub bufSize: c_int,
+        pub freeSize: c_int,
+        pub numSendWaitThreads: c_int,
+        pub numReceiveWaitThreads: c_int,
+    }
+
+    pub struct SceKernelSystemInfo {
+        pub size: SceSize,
+        pub activeCpuMask: SceUInt32,
+        pub cpuInfo: [SceKernelSystemInfoCpuInfo; 4],
+    }
+
+    pub struct SceKernelSystemInfoCpuInfo {
+        pub idleClock: SceKernelSysClock,
+        pub comesOutOfIdleCount: SceUInt32,
+        pub threadSwitchCount: SceUInt32,
+    }
+
+    pub struct SceKernelLwMutexWork {
+        pub data: [SceInt64; 4],
+    }
+
+    pub struct SceKernelLwMutexOptParam {
+        pub size: SceSize,
+    }
+
+    pub struct SceKernelLwCondWork {
+        pub data: [SceInt32; 4],
+    }
+
+    pub struct SceKernelLwCondOptParam {
+        pub size: SceSize,
     }
 }
 
@@ -330,4 +542,222 @@ extern "C" {
         tv: *mut SceKernelTimeval,
         tz: *mut SceKernelTimezone,
     ) -> c_int;
+
+    pub fn sceKernelCreateThread(
+        name: *const c_char,
+        entry: SceKernelThreadEntry,
+        initPriority: c_int,
+        stackSize: SceSize,
+        attr: SceUInt,
+        cpuAffinityMask: c_int,
+        option: *const SceKernelThreadOptParam,
+    ) -> SceUID;
+    pub fn sceKernelDeleteThread(thid: SceUID) -> c_int;
+    pub fn sceKernelStartThread(thid: SceUID, arglen: SceSize, argp: *mut c_void) -> c_int;
+    pub fn sceKernelExitThread(status: c_int) -> c_int;
+    pub fn sceKernelExitDeleteThread(status: c_int) -> c_int;
+    pub fn sceKernelWaitThreadEnd(thid: SceUID, stat: *mut c_int, timeout: *mut SceUInt) -> c_int;
+    pub fn sceKernelWaitThreadEndCB(thid: SceUID, stat: *mut c_int, timeout: *mut SceUInt)
+        -> c_int;
+    pub fn sceKernelDelayThread(usecs: SceUInt) -> c_int;
+    pub fn sceKernelDelayThreadCB(delay: SceUInt) -> c_int;
+    pub fn sceKernelChangeCurrentThreadAttr(clearAttr: SceUInt, setAttr: SceUInt) -> c_int;
+    pub fn sceKernelChangeThreadPriority(thid: SceUID, priority: c_int) -> c_int;
+    pub fn sceKernelGetThreadId() -> c_int;
+    pub fn sceKernelGetProcessId() -> SceUID;
+    pub fn sceKernelGetThreadCurrentPriority() -> c_int;
+    pub fn sceKernelGetThreadExitStatus(thid: SceUID, status: *mut c_int) -> c_int;
+    pub fn sceKernelCheckThreadStack() -> c_int;
+    pub fn sceKernelGetThreadStackFreeSize(thid: SceUID) -> c_int;
+    pub fn sceKernelGetThreadInfo(thid: SceUID, info: *mut SceKernelThreadInfo) -> c_int;
+    pub fn sceKernelGetThreadRunStatus(
+        thid: SceUID,
+        status: *mut SceKernelThreadRunStatus,
+    ) -> c_int;
+    pub fn sceKernelGetThreadCpuAffinityMask(thid: SceUID) -> c_int;
+    pub fn sceKernelChangeThreadCpuAffinityMask(thid: SceUID, mask: c_int) -> c_int;
+    pub fn sceKernelCreateSema(
+        name: *const c_char,
+        attr: SceUInt,
+        initVal: c_int,
+        maxVal: c_int,
+        option: *mut SceKernelSemaOptParam,
+    ) -> SceUID;
+    pub fn sceKernelDeleteSema(semaid: SceUID) -> c_int;
+    pub fn sceKernelSignalSema(semaid: SceUID, signal: c_int) -> c_int;
+    pub fn sceKernelWaitSema(semaid: SceUID, signal: c_int, timeout: *mut SceUInt) -> c_int;
+    pub fn sceKernelWaitSemaCB(semaid: SceUID, signal: c_int, timeout: *mut SceUInt) -> c_int;
+    pub fn sceKernelPollSema(semaid: SceUID, signal: c_int) -> c_int;
+    pub fn sceKernelCancelSema(
+        semaid: SceUID,
+        setCount: c_int,
+        numWaitThreads: *mut c_int,
+    ) -> c_int;
+    pub fn sceKernelGetSemaInfo(semaid: SceUID, info: *mut SceKernelSemaInfo) -> c_int;
+    pub fn sceKernelOpenSema(name: *const c_char) -> SceUID;
+    pub fn sceKernelCloseSema(semaid: SceUID) -> c_int;
+    pub fn sceKernelCreateMutex(
+        name: *const c_char,
+        attr: SceUInt,
+        initCount: c_int,
+        option: *mut SceKernelMutexOptParam,
+    ) -> SceUID;
+    pub fn sceKernelDeleteMutex(mutexid: SceUID) -> c_int;
+    pub fn sceKernelOpenMutex(name: *const c_char) -> c_int;
+    pub fn sceKernelCloseMutex(mutexid: SceUID) -> c_int;
+    pub fn sceKernelLockMutex(mutexid: SceUID, lockCount: c_int, timeout: *mut c_uint) -> c_int;
+    pub fn sceKernelLockMutexCB(mutexid: SceUID, lockCount: c_int, timeout: *mut c_uint) -> c_int;
+    pub fn sceKernelTryLockMutex(mutexid: SceUID, lockCount: c_int) -> c_int;
+    pub fn sceKernelUnlockMutex(mutexid: SceUID, unlockCount: c_int) -> c_int;
+    pub fn sceKernelCancelMutex(
+        mutexid: SceUID,
+        newCount: c_int,
+        numWaitThreads: *mut c_int,
+    ) -> c_int;
+    pub fn sceKernelGetMutexInfo(mutexid: SceUID, info: *mut SceKernelMutexInfo) -> c_int;
+    pub fn sceKernelCreateEventFlag(
+        name: *const c_char,
+        attr: c_int,
+        bits: c_int,
+        opt: *mut SceKernelEventFlagOptParam,
+    ) -> SceUID;
+    pub fn sceKernelSetEventFlag(evid: SceUID, bits: c_uint) -> c_int;
+    pub fn sceKernelClearEventFlag(evid: SceUID, bits: c_uint) -> c_int;
+    pub fn sceKernelPollEventFlag(
+        evid: c_int,
+        bits: c_uint,
+        wait: c_uint,
+        outBits: *mut c_uint,
+    ) -> c_int;
+    pub fn sceKernelWaitEventFlag(
+        evid: c_int,
+        bits: c_uint,
+        wait: c_uint,
+        outBits: *mut c_uint,
+        timeout: *mut SceUInt,
+    ) -> c_int;
+    pub fn sceKernelWaitEventFlagCB(
+        evid: c_int,
+        bits: c_uint,
+        wait: c_uint,
+        outBits: *mut c_uint,
+        timeout: *mut SceUInt,
+    ) -> c_int;
+    pub fn sceKernelDeleteEventFlag(evid: c_int) -> c_int;
+    pub fn sceKernelGetEventFlagInfo(event: SceUID, info: *mut SceKernelEventFlagInfo) -> c_int;
+    pub fn sceKernelCreateCond(
+        name: *const c_char,
+        attr: SceUInt,
+        mutexId: SceUID,
+        option: *const SceKernelCondOptParam,
+    ) -> SceUID;
+    pub fn sceKernelDeleteCond(condId: SceUID) -> c_int;
+    pub fn sceKernelOpenCond(name: *const c_char) -> c_int;
+    pub fn sceKernelCloseCond(condId: SceUID) -> c_int;
+    pub fn sceKernelWaitCond(condId: SceUID, timeout: *mut c_uint) -> c_int;
+    pub fn sceKernelWaitCondCB(condId: SceUID, timeout: *mut c_uint) -> c_int;
+    pub fn sceKernelSignalCond(condId: SceUID) -> c_int;
+    pub fn sceKernelSignalCondAll(condId: SceUID) -> c_int;
+    pub fn sceKernelSignalCondTo(condId: SceUID, threadId: SceUID) -> c_int;
+    pub fn sceKernelCreateCallback(
+        name: *const c_char,
+        attr: c_uint,
+        func: SceKernelCallbackFunction,
+        userData: *mut c_void,
+    ) -> c_int;
+    pub fn sceKernelGetCallbackInfo(cb: SceUID, infop: *mut SceKernelCallbackInfo) -> c_int;
+    pub fn sceKernelDeleteCallback(cb: SceUID) -> c_int;
+    pub fn sceKernelNotifyCallback(cb: SceUID, arg2: c_int) -> c_int;
+    pub fn sceKernelCancelCallback(cb: SceUID) -> c_int;
+    pub fn sceKernelGetCallbackCount(cb: SceUID) -> c_int;
+    pub fn sceKernelCheckCallback() -> c_int;
+    pub fn sceKernelCreateMsgPipe(
+        name: *const c_char,
+        type_: c_int,
+        attr: c_int,
+        bufSize: c_uint,
+        opt: *mut c_void,
+    ) -> SceUID;
+    pub fn sceKernelDeleteMsgPipe(uid: SceUID) -> c_int;
+    pub fn sceKernelSendMsgPipe(
+        uid: SceUID,
+        message: *mut c_void,
+        size: c_uint,
+        unk1: c_int,
+        unk2: *mut c_void,
+        timeout: *mut c_uint,
+    ) -> c_int;
+    pub fn sceKernelSendMsgPipeCB(
+        uid: SceUID,
+        message: *mut c_void,
+        size: c_uint,
+        unk1: c_int,
+        unk2: *mut c_void,
+        timeout: *mut c_uint,
+    ) -> c_int;
+    pub fn sceKernelTrySendMsgPipe(
+        uid: SceUID,
+        message: *mut c_void,
+        size: SceSize,
+        unk1: c_int,
+        unk2: *mut c_void,
+    ) -> c_int;
+    pub fn sceKernelReceiveMsgPipe(
+        uid: SceUID,
+        message: *mut c_void,
+        size: SceSize,
+        unk1: c_int,
+        unk2: *mut c_void,
+        timeout: *mut c_uint,
+    ) -> c_int;
+    pub fn sceKernelReceiveMsgPipeCB(
+        uid: SceUID,
+        message: *mut c_void,
+        size: SceSize,
+        unk1: c_int,
+        unk2: *mut c_void,
+        timeout: *mut c_uint,
+    ) -> c_int;
+    pub fn sceKernelTryReceiveMsgPipe(
+        uid: SceUID,
+        message: *mut c_void,
+        size: SceSize,
+        unk1: c_int,
+        unk2: *mut c_void,
+    ) -> c_int;
+    pub fn sceKernelCancelMsgPipe(uid: SceUID, psend: *mut c_int, precv: *mut c_int) -> c_int;
+    pub fn sceKernelGetMsgPipeInfo(uid: SceUID, info: *mut SceKernelMppInfo) -> c_int;
+    pub fn sceKernelGetSystemInfo(info: *mut SceKernelSystemInfo) -> c_int;
+    pub fn sceKernelGetThreadmgrUIDClass(uid: SceUID) -> SceKernelIdListType;
+    pub fn sceKernelCreateLwMutex(
+        pWork: *mut SceKernelLwMutexWork,
+        pName: *const c_char,
+        attr: c_uint,
+        initCount: c_int,
+        pOptParam: *const SceKernelLwMutexOptParam,
+    ) -> c_int;
+    pub fn sceKernelDeleteLwMutex(pWork: *mut SceKernelLwMutexWork) -> c_int;
+    pub fn sceKernelLockLwMutex(
+        pWork: *mut SceKernelLwMutexWork,
+        lockCount: c_int,
+        pTimeout: *mut c_uint,
+    ) -> c_int;
+    pub fn sceKernelTryLockLwMutex(pWork: *mut SceKernelLwMutexWork, lockCount: c_int) -> c_int;
+    pub fn sceKernelUnlockLwMutex(pWork: *mut SceKernelLwMutexWork, unlockCount: c_int) -> c_int;
+    pub fn sceKernelCreateLwCond(
+        pWork: *mut SceKernelLwCondWork,
+        pName: *const c_char,
+        attr: c_uint,
+        pLwMutex: *mut SceKernelLwMutexWork,
+        pOptParam: *const SceKernelLwCondOptParam,
+    ) -> c_int;
+    pub fn sceKernelDeleteLwCond(pWork: *mut SceKernelLwCondWork) -> c_int;
+    pub fn sceKernelSignalLwCond(pWork: *mut SceKernelLwCondWork) -> c_int;
+    pub fn sceKernelWaitLwCond(pWork: *mut SceKernelLwCondWork, pTimeout: *mut c_uint) -> c_int;
+    pub fn sceKernelWaitSignal(unk0: SceUInt32, delay: SceUInt32, timeout: *mut SceUInt32)
+        -> c_int;
+    pub fn sceKernelSendSignal(thid: SceUID) -> c_int;
+    pub fn sceKernelGetSystemTimeWide() -> SceInt64;
+    pub fn sceKernelGetThreadTLSAddr(thid: SceUID, key: c_int) -> *mut c_void;
+    pub fn sceKernelGetTLSAddr(key: c_int) -> *mut c_void;
 }
