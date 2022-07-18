@@ -120,6 +120,7 @@ pub type SceKernelSysClock = SceUInt64;
 pub type SceKernelClock = SceUInt64;
 pub type SceKernelTime = SceUInt32;
 
+pub const SCE_OK: c_int = 0;
 pub const SCE_UID_NAMELEN: usize = 31;
 
 pub const SCE_KERNEL_THREAD_CPU_AFFINITY_MASK_DEFAULT: u32 = 0;
