@@ -132,7 +132,7 @@ pub type SceKernelCallbackFunction = extern "C" fn(
     userData: *mut c_void,
 ) -> c_int;
 
-pub type SceKernelMemBlockType = u32;
+pub type SceKernelMemBlockType = SceUInt32;
 pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_CDRAM_L1WBWA_RW: SceKernelMemBlockType = 0x09404060;
 pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_CDRAM_R: SceKernelMemBlockType = 0x09408040;
 pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_CDRAM_RW: SceKernelMemBlockType = 0x09408060;
@@ -151,6 +151,22 @@ pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_CDIALOG_R: SceKernelMemBlockType = 0x0E2
 pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_CDIALOG_RW: SceKernelMemBlockType = 0x0E20D060;
 pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_CDIALOG_NC_R: SceKernelMemBlockType = 0x0E208040;
 pub const SCE_KERNEL_MEMBLOCK_TYPE_USER_CDIALOG_NC_RW: SceKernelMemBlockType = 0x0E208060;
+
+pub type SceKernelAllocMemBlockAttr = c_uint;
+pub const SCE_KERNEL_ALLOC_MEMBLOCK_ATTR_HAS_ALIGNMENT: SceKernelAllocMemBlockAttr = 4;
+
+pub type SceKernelModel = c_uint;
+pub const SCE_KERNEL_MODEL_VITA: SceKernelModel = 65536;
+pub const SCE_KERNEL_MODEL_VITATV: SceKernelModel = 131072;
+
+pub type SceKernelMemoryAccessType = c_uint;
+pub const SCE_KERNEL_MEMORY_ACCESS_X: SceKernelMemoryAccessType = 1;
+pub const SCE_KERNEL_MEMORY_ACCESS_W: SceKernelMemoryAccessType = 2;
+pub const SCE_KERNEL_MEMORY_ACCESS_R: SceKernelMemoryAccessType = 4;
+
+pub type SceKernelMemoryType = c_uint;
+pub const SCE_KERNEL_MEMORY_TYPE_NORMAL_NC: SceKernelMemoryType = 128;
+pub const SCE_KERNEL_MEMORY_TYPE_NORMAL: SceKernelMemoryType = 208;
 
 pub type SceKernelProcessPrioritySystem = c_uint;
 pub const SCE_KERNEL_PROCESS_PRIORITY_SYSTEM_HIGH: SceKernelProcessPrioritySystem = 32;
@@ -571,7 +587,7 @@ s! {
 
     pub struct SceKernelAllocMemBlockOpt {
         pub size: SceSize,
-        pub attr: SceUInt32,
+        pub attr: SceKernelAllocMemBlockAttr,
         pub alignment: SceSize,
         pub uidBaseBlock: SceUID,
         pub strBaseBlockName: *const c_char,
