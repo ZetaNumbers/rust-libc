@@ -781,11 +781,11 @@ extern "C" {
     pub fn at_quick_exit(cb: extern "C" fn()) -> c_int;
 
     #[link_name = "_Stderr"]
-    pub static stderr: FILE;
+    pub static mut stderr: FILE;
     #[link_name = "_Stdin"]
-    pub static stdin: FILE;
+    pub static mut stdin: FILE;
     #[link_name = "_Stdout"]
-    pub static stdout: FILE;
+    pub static mut stdout: FILE;
     pub fn fopen(filename: *const c_char, mode: *const c_char) -> *mut FILE;
     pub fn freopen(filename: *const c_char, mode: *const c_char, file: *mut FILE) -> *mut FILE;
     pub fn fflush(file: *mut FILE) -> c_int;
