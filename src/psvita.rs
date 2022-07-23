@@ -783,6 +783,12 @@ s! {
     }
 }
 
+impl fpos_t {
+    pub const fn zeroed() -> Self {
+        fpos_t { data: [0; 2] }
+    }
+}
+
 impl SceKernelLwMutexWork {
     pub const fn zeroed() -> Self {
         SceKernelLwMutexWork { data: [0; 4] }
