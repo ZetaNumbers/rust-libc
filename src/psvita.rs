@@ -615,7 +615,7 @@ s! {
 
     pub struct SceKernelTimeval {
         pub sec: i32,
-        pub nsec: i32,
+        pub usec: i32,
     }
 
     pub struct SceKernelTimezone {
