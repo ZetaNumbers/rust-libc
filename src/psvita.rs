@@ -805,6 +805,7 @@ extern "C" {
     pub fn calloc(nobj: size_t, size: size_t) -> *mut c_void;
     pub fn malloc(size: size_t) -> *mut c_void;
     pub fn realloc(p: *mut c_void, size: size_t) -> *mut c_void;
+    pub fn reallocalign(p: *mut c_void, size: size_t, align: size_t) -> *mut c_void;
     pub fn free(p: *mut c_void);
     pub fn memalign(align: size_t, size: size_t) -> *mut c_void;
 
