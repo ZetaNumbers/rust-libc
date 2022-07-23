@@ -123,10 +123,10 @@ pub type SceKernelTime = SceUInt32;
 pub const SCE_OK: c_int = 0;
 pub const SCE_UID_NAMELEN: usize = 31;
 
-pub const SCE_KERNEL_THREAD_CPU_AFFINITY_MASK_DEFAULT: u32 = 0;
+pub const SCE_KERNEL_THREAD_CPU_AFFINITY_MASK_DEFAULT: c_int = 0;
 
-pub type SceKernelThreadEntry = extern "C" fn(args: SceSize, argp: *mut c_void) -> c_int;
-pub type SceKernelCallbackFunction = extern "C" fn(
+pub type SceKernelThreadEntry = unsafe extern "C" fn(args: SceSize, argp: *mut c_void) -> c_int;
+pub type SceKernelCallbackFunction = unsafe extern "C" fn(
     notifyId: c_int,
     notifyCount: c_int,
     notifyArg: c_int,
@@ -758,7 +758,7 @@ s! {
     }
 
     pub struct SceKernelLwMutexWork {
-        pub data: [SceInt64; 4],
+        data: [SceInt64; 4],
     }
 
     pub struct SceKernelLwMutexOptParam {
@@ -766,7 +766,7 @@ s! {
     }
 
     pub struct SceKernelLwCondWork {
-        pub data: [SceInt32; 4],
+        data: [SceInt32; 4],
     }
 
     pub struct SceKernelLwCondOptParam {
@@ -780,6 +780,18 @@ s! {
         pub pixelformat: SceDisplayPixelFormat,
         pub width: c_uint,
         pub height: c_uint,
+    }
+}
+
+impl SceKernelLwMutexWork {
+    pub const fn zeroed() -> Self {
+        SceKernelLwMutexWork { data: [0; 4] }
+    }
+}
+
+impl SceKernelLwCondWork {
+    pub const fn zeroed() -> Self {
+        SceKernelLwCondWork { data: [0; 4] }
     }
 }
 
@@ -963,7 +975,7 @@ extern "C" {
     pub fn sceKernelCloseSema(semaid: SceUID) -> c_int;
     pub fn sceKernelCreateMutex(
         name: *const c_char,
-        attr: SceUInt,
+        attr: SceKernelMutexAttribute,
         initCount: c_int,
         option: *mut SceKernelMutexOptParam,
     ) -> SceUID;
