@@ -1131,6 +1131,8 @@ extern "C" {
     ) -> c_int;
     pub fn sceKernelDeleteLwCond(pWork: *mut SceKernelLwCondWork) -> c_int;
     pub fn sceKernelSignalLwCond(pWork: *mut SceKernelLwCondWork) -> c_int;
+    pub fn sceKernelSignalLwCondAll(pWork: *mut SceKernelLwCondWork) -> c_int;
+    pub fn sceKernelSignalLwCondTo(pWork: *mut SceKernelLwCondWork, threadId: SceUID) -> c_int;
     pub fn sceKernelWaitLwCond(pWork: *mut SceKernelLwCondWork, pTimeout: *mut c_uint) -> c_int;
     pub fn sceKernelWaitSignal(unk0: SceUInt32, delay: SceUInt32, timeout: *mut SceUInt32)
         -> c_int;
