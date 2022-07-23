@@ -784,21 +784,15 @@ s! {
 }
 
 impl fpos_t {
-    pub const fn zeroed() -> Self {
-        fpos_t { data: [0; 2] }
-    }
+    pub const ZEROED: Self = fpos_t { data: [0; 2] };
 }
 
 impl SceKernelLwMutexWork {
-    pub const fn zeroed() -> Self {
-        SceKernelLwMutexWork { data: [0; 4] }
-    }
+    pub const ZEROED: Self = SceKernelLwMutexWork { data: [0; 4] };
 }
 
 impl SceKernelLwCondWork {
-    pub const fn zeroed() -> Self {
-        SceKernelLwCondWork { data: [0; 4] }
-    }
+    pub const ZEROED: Self = SceKernelLwCondWork { data: [0; 4] };
 }
 
 extern "C" {
