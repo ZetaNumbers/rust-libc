@@ -67,6 +67,16 @@ s! {
         pub st_blocks: ::blkcnt_t,
         pub st_spare4: [::c_long; 2usize],
     }
+
+    pub struct msghdr {
+        pub msg_name: *mut ::c_void,
+        pub msg_namelen: ::socklen_t,
+        pub msg_iov: *mut ::iovec,
+        pub msg_iovlen: ::c_int,
+        pub msg_control: *mut ::c_void,
+        pub msg_controllen: ::socklen_t,
+        pub msg_flags: ::c_int,
+    }
 }
 
 pub const AF_UNIX: ::c_int = 1;
@@ -83,8 +93,14 @@ pub const POLLNVAL: ::c_short = 0x0020;
 
 pub const RTLD_DEFAULT: *mut ::c_void = 0 as *mut ::c_void;
 
+pub const SOCK_RAW: ::c_int = 3;
+pub const SOCK_RDM: ::c_int = 4;
+pub const SOCK_SEQPACKET: ::c_int = 5;
+
 pub const SOL_SOCKET: ::c_int = 0xffff;
 pub const SO_NONBLOCK: ::c_int = 0x1100;
+
+pub const IP_HDRINCL: ::c_int = 2;
 
 pub const MSG_OOB: ::c_int = 0x1;
 pub const MSG_PEEK: ::c_int = 0x2;
@@ -123,19 +139,6 @@ pub const SIGSYS: ::c_int = 12;
 pub const SIGPIPE: ::c_int = 13;
 pub const SIGALRM: ::c_int = 14;
 pub const SIGTERM: ::c_int = 15;
-
-pub const EAI_BADFLAGS: ::c_int = -1;
-pub const EAI_NONAME: ::c_int = -2;
-pub const EAI_AGAIN: ::c_int = -3;
-pub const EAI_FAIL: ::c_int = -4;
-pub const EAI_NODATA: ::c_int = -5;
-pub const EAI_FAMILY: ::c_int = -6;
-pub const EAI_SOCKTYPE: ::c_int = -7;
-pub const EAI_SERVICE: ::c_int = -8;
-pub const EAI_ADDRFAMILY: ::c_int = -9;
-pub const EAI_MEMORY: ::c_int = -10;
-pub const EAI_SYSTEM: ::c_int = -11;
-pub const EAI_OVERFLOW: ::c_int = -12;
 
 pub const _SC_PAGESIZE: ::c_int = 8;
 pub const _SC_GETPW_R_SIZE_MAX: ::c_int = 51;
@@ -198,4 +201,7 @@ extern "C" {
     pub fn pthread_getprocessorid_np() -> ::c_int;
 
     pub fn getentropy(buf: *mut ::c_void, buflen: ::size_t) -> ::c_int;
+
+    pub fn recvmsg(s: ::c_int, msg: *mut ::msghdr, flags: ::c_int) -> ::ssize_t;
+    pub fn sendmsg(s: ::c_int, msg: *const ::msghdr, flags: ::c_int) -> ::ssize_t;
 }
